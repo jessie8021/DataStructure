@@ -3,12 +3,10 @@
 
 입력으로 주어지는 리스트 x 의 첫 원소와 마지막 원소의 합을 리턴하는 함수 solution() 을 완성하세요.
 '''
-# my anwser
 def solution(x):
 
     return x[0] + x[len(x) - 1]
 
-# good anwser : list slicing 이용 -> len 함수를 안 써도 되는 점이 좋다.
 def solution(x):
 
     return x[0] + x[-1]
@@ -92,5 +90,23 @@ L[:3] = [6, 2, 8]
 '''
 
 def solution(L, x):
-    answer = []
-    return answer
+    anwser = [i for i, j in enumerate(L) if j == x]
+    return [-1] if len(anwser) == 0 else anwser
+
+def solution(L, x):
+    anwser = []
+    maxIndex = len(L)
+    index = 0
+    checkIndex = 0
+    try :
+        while maxIndex != checkIndex:
+            index = L[checkIndex:].index(x)
+            checkIndex += index
+            anwser.append(checkIndex)
+            checkIndex += 1
+        return anwser
+
+    except ValueError:
+        return [-1] if len(anwser) == 0 else anwser
+
+# print(solution([64, 72, 83, 72, 54], 54))
