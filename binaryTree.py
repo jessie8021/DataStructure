@@ -47,7 +47,7 @@ Tree (Tree)
  - 이진 트리의 추상적 자료구조 - 연산의 정의
      • size() - 현재 트리에 포함되어 있는 노드의 수를 구함
      • depth() - 현재 트리의 깊이(또는 높이:height) 를 구함
-     • 순회 (traversal)
+     • 깊이 우선 순회 (depth first traversal)
         1) 중위순회 (In-order Traversal)
           순회의 순서 - (1) Left subtree (2) 자기자신 (3) Right subtree
 
@@ -99,6 +99,38 @@ Tree (Tree)
 
       4 [H]                       8 [J]
 
+
+     • 넓이 우선 순회(breadth first traversal)
+        - 수준(level)이 낮은 노드를 우선으로 방문
+        - 같은 수준의 노드들 사이에는,
+            1) 부모노드의 방문 순서에 따라 방문
+            2) 왼쪽 자식 노드를 오른쪽 자식보다 먼저 방문
+
+                          [A]                    ➤➤➤➤➤   level0
+
+                    ↙               ↘
+
+                [B]                 [C]           ➤➤➤➤➤ level1
+
+              ↙     ↘             ↙     ↘
+
+            [D]     [E]         [F]     [G]        ➤➤➤➤➤ level2
+
+           ↙                       ↘
+
+        [H]                         [J]              ➤➤➤➤➤ level3
+
+        - 순회결과 : A - B - C - D - E - F - G - H - J
+        - 넓이 우선 순회 알고리즘 구현
+            1) (초기화) traversal <- 빈리스트, q <- 빈 큐
+            2) 빈 트리가 아니면, root node를 q에 추가 (enqueue)
+            3) q가 비어 있지 않은 동안
+                3.1) node <- q에서 원소를 추출(dequeue)
+                3.2) node를 방문
+                3.3) node의 왼쪽, 오른쪽 자식(있으면) 들을 q에 추가
+            4) q가 빈 큐가 되면 모든 노드 방문 완료
+
+
 '''
 
 '''
@@ -114,6 +146,31 @@ Tree (Tree)
 [참고] 실행 을 눌렀을 때 통과하는 것은 아무 의미 없습니다.
 또한, solution() 함수는 테스트에 영향을 미치므로 수정하지 말고 그대로 두세요.
 '''
+'''
+이미 주어진 코드 (class Node 와 class BinaryTree 에 의하여) 의 구조를 따르는 
+이진 트리 (binary tree) 에 대하여, 트리를 전위 순회 (preorder traversal) 하는 연산의 구현을 완성하세요.
+초기 코드에 pass 로만 되어 있는 class Node 의 preorder() 메서드와 class BinaryTree 의 preorder() 메서드를 구현합니다. 
+코드의 다른 부분은 수정할 필요가 없습니다.
+'''
+class ArrayQueue:
+    def __init__(self):
+        self.data = []
+
+    def size(self):
+        return len(self.data)
+
+    def isEmpty(self):
+        return self.size() == 0
+
+    def enqueue(self, item):
+        self.data.append(item)
+
+    def dequeue(self):
+        return self.data.pop(0)
+
+    def peek(self):
+        return self.data[0]
+
 class Node:
     def __init__(self, item):
         self.data = item
@@ -136,6 +193,33 @@ class Node:
         # print('l : ', l, ', r : ', r)
         return  l + 1 if l >= r else r + 1
 
+    def inorder(self):
+        traversal = []
+        if self.left:
+            traversal += self.left.inorder()
+        traversal.append(self.data)
+        if self.right:
+            traversal += self.right.inorder()
+        return traversal
+
+    def preorder(self):
+        traversal = []
+        traversal.append(self.data)
+        if self.left:
+            traversal += self.left.preorder()
+        if self.right:
+            traversal += self.right.preorder()
+        return traversal
+
+    def postorder(self):
+        traversal = []
+        if self.left:
+            traversal += self.left.postorder()
+        if self.right:
+            traversal += self.right.postorder()
+        traversal.append(self.data)
+        return traversal
+
 class BinaryTree:
     def __init__(self, r):
         self.root = r
@@ -152,6 +236,41 @@ class BinaryTree:
         else:
             return 0
 
+    def inorder(self):
+        if self.root:
+            return self.root.inorder()
+        else:
+            return []
+
+    def preorder(self):
+        if self.root:
+            return self.root.preorder()
+        else:
+            return []
+
+    def postorder(self):
+        if self.root:
+            return self.root.postorder()
+        else:
+            return []
+
+    def bft(self):
+        traversal = []
+        q = ArrayQueue()
+
+        if self.root:
+            q.enqueue(self.root)
+
+        while not q.isEmpty():
+            node = q.dequeue()
+            traversal.append(node.data)
+
+            if node.left:
+                q.enqueue(node.left)
+            if node.right:
+                q.enqueue(node.right)
+        return traversal
+
 def solution():
     node1 = Node('B')
     node2 = Node('D')
@@ -162,12 +281,9 @@ def solution():
     node1.right = node3
     node2.left = node4
 
-    # print(node1.depth())
-
     bt = BinaryTree(node1)
 
-    print(bt.size())
-    print(bt.depth())
+    print(bt.bft())
 
 solution()
 
