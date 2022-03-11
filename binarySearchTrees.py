@@ -72,8 +72,21 @@ class Node:
             else:
                 self.right = Node(key, data)
         else:
-            raise KeyError('Key Error')
+            raise KeyError('Key %s already exists.' % key)
 
+    def lookup(self, key, parent=None):
+        if key < self.key:
+            if self.left:
+                return self.left.lookup(key, self)
+            else:
+                return None, None
+        elif key > self.key:
+            if self.right:
+                return self.right.lookup(key, self)
+            else:
+                return None, None
+        else:
+            return self, parent
 
     def inorder(self):
         traversal = []
@@ -85,6 +98,14 @@ class Node:
 
         return traversal
 
+    def countChildren(self):
+        count = 0
+        if self.left:
+            count += 1
+        if self.right:
+            count += 1
+        return count
+
 class BinarySearchTree:
     def __init__(self):
         self.root = None
@@ -94,6 +115,91 @@ class BinarySearchTree:
             self.root.insert(key, data)
         else:
             self.root = Node(key, data)
+
+    def lookup(self, key):
+        if self.root:
+            return self.root.lookup(key)
+        else:
+            return None, None
+
+    def remove(self, key):
+        node, parent = self.lookup(key)
+
+        if node:
+            nChildren = node.countChildren()
+
+            # The simplest case of no children
+            if nChildren == 0:
+                # 만약 parent 가 있으면
+                # node 가 왼쪽자식인지 오른쪽 자식인지 판단하여
+                # parent.left 또는 parent.right 를 None으로 하여
+                # leaf node였던자식을 트리에서 끊어내어 없앱니다.
+                if parent:
+                    if node == parent.left:
+                        parent.left = None
+                    if node == parent.right:
+                        parent.right = None
+                # 만약 parent가 없으면 (node는 root인 경우)
+                # self.root를 None으로 하여 빈 트리로 만듭니다.
+                else:
+                    self.root = None
+            # When the node has only one child
+            elif nChildren == 1:
+                # 하나 있는 자식이 왼쪽인지 오른쪽인지를 판단하여
+                # 그 자식을 어떤 변수가 가리키도록 합니다.
+                if node.left:
+                    children = node.left
+                else:
+                    children = node.right
+                # 만약 parent가 있으면
+                # node가 왼쪽 자식인지 오른쪽 자식인지 판단하여
+                # 위에서 가리킨 자식을 대신 node의 자리에 넣습니다.
+                if parent:
+                    if node == parent.left:
+                        parent.left = children
+                    if node == parent.right:
+                        parent.right = children
+                # 만약 parent가 없으면(node는 root인 경우)
+                # self.root에 위에서 가리킨 자식을 대신 넣습니다.
+                else:
+                    self.root = children
+            # When the node has both left and right children
+            else:
+                parent = node
+                successor = node.right
+                # parent 는 node를 가리키고 있고,
+                # successor는 node의 오른쪽 자식을 가리키고 있으므로
+                # successor 로부터 왼쪽자식의 링크를 반복하여 따라감으로써,
+                # 순환문이 종료할 때 successor는 바로 다음 키를 가진 노드를,
+                # parent 는 그 노드의 부모 노드를 가리키도록 찾아냅니다.
+                while successor.left:
+                    parent = successor
+                    successor = successor.left
+
+                # 삭제하려는 노드인 node에 successor의 key 와 data를 대입합니다.
+                node.key = successor.key
+                node.data = successor.data
+
+                # successor가 parent의 왼쪽 자식인지 오른쪽 자식인지를 판단하여
+                # 그에땨라 parent.left 또는 parent.right를
+                # successor가 가지고 있던(없을 수도 있지만) 자식을 가리키도록 합니다.
+
+                if parent.left == successor:
+                    if successor.right:
+                        parent.left = successor.right
+                    if successor.right is None:
+                        parent.left = None
+
+                elif parent.right == successor:
+                    if successor.right:
+                        parent.right = successor.right
+                    if successor.right is None:
+                        parent.right = None
+
+            return True
+        else:
+            return False
+
 
     def inorder(self):
         if self.root:
@@ -108,6 +214,25 @@ def solution():
     bt.insert(8, 'Mary')
     bt.insert(1, 'Patric')
     bt.insert(4, 'Sue')
+    bt.insert(6, 'Anne')
+    bt.insert(10, 'clara')
+    bt.insert(7, 'ted')
+    bt.insert(9, 'A')
+    bt.insert(11, 'B')
 
+
+
+    for i in bt.inorder():
+        print(i.key, ' : ', i.data)
+
+    # node, parent = bt.lookup(7)
+    # print(node.key, ', ', parent.key)
+
+
+    bt.remove(8)
+
+    for i in bt.inorder():
+        print(i.key, ' : ', i.data)
+    # print(bt.root.key)
 
 solution()
