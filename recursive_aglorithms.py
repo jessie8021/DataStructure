@@ -135,11 +135,11 @@ def hanoi(n, from_pos, to_pos, aux_pos):
         return
 
     hanoi(n-1, from_pos, aux_pos, to_pos)
-    print(from_pos, '->>', to_pos)
     hanoi(n-1, aux_pos, to_pos, from_pos)
 
-# hanoi(3, 1, 3, 2)
+# hanoi(3, 'a', 'b', 'c')
 '''
+
 [재귀적 이진탐색]
 리스트 L 과, 그 안에서 찾으려 하는 원소 x 가 인자로 주어지고, 
 또한 탐색의 대상이 되는 리스트 내에서의 범위 인덱스가 l 부터 u 까지로 (인자로) 정해질 때, 
